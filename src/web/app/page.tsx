@@ -14,7 +14,7 @@ export default async function Home() {
             href="/hello-world"
             className="text-sm rounded-lg bg-zinc-200 dark:bg-zinc-700 px-3 py-2 text-zinc-900 dark:text-zinc-50 hover:bg-zinc-300 dark:hover:bg-zinc-600 transition-colors"
           >
-            Hello World
+            Hello World 123
           </a>
         </div>
 
