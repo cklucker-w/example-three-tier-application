@@ -131,4 +131,8 @@ DATABASE_URL=postgres://app:app@localhost:5432/app npx node-pg-migrate down
 
 When running via Docker Compose the `migrate` service handles this automatically on startup.
 
+## Note on sandbox environment
+
+Docker commands are not available in this sandbox environment. The `docker pull` command and other Docker operations are blocked by sandbox restrictions. This application is designed to run with Docker Compose locally or deploy to GCP via Terraform in a full development environment.
+
 don't forget to be awesome!
