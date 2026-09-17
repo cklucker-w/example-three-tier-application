@@ -27,7 +27,7 @@ app.get('/tasks/:id', async (req, res) => {
 // POST /tasks — create a task
 app.post('/tasks', async (req, res) => {
   const { title } = req.body;
-  if (!title || typeof title !== 'string' || !title.trim()) {
+  if (!title || typeof title!== 'string' ||!title.trim()) {
     return res.status(400).json({ error: 'title is required' });
   }
   const { rows } = await db.query(
@@ -46,8 +46,8 @@ app.patch('/tasks/:id', async (req, res) => {
   if (rows.length === 0) return res.status(404).json({ error: 'Not found' });
 
   const current = rows[0];
-  const newCompleted = completed !== undefined ? Boolean(completed) : current.completed;
-  const newTitle = title !== undefined ? title.trim() : current.title;
+  const newCompleted = completed!== undefined? Boolean(completed) : current.completed;
+  const newTitle = title!== undefined? title.trim() : current.title;
 
   const { rows: updated } = await db.query(
     'UPDATE tasks SET completed = $1, title = $2 WHERE id = $3 RETURNING *',
@@ -65,6 +65,45 @@ app.delete('/tasks/:id', async (req, res) => {
 
   await db.query('DELETE FROM tasks WHERE id = $1', [id]);
   res.status(204).send();
+});
+
+// GET /tasks/completed — list all completed tasks
+app.get('/tasks/completed', async (_req, res) => {
+  const { rows } = await db.query('SELECT * FROM tasks WHERE completed = true ORDER BY created_at ASC');
+  res.json(rows);
+});
+
+// GET /tasks/pending — list all pending (incomplete) tasks
+app.get('/tasks/pending', async (_req, res) => {
+  const { rows } = await db.query('SELECT * FROM tasks WHERE completed = false ORDER BY created_at ASC');
+  res.json(rows);
+});
+
+// GET /tasks/stats — get task statistics
+app.get('/tasks/stats', async (_req, res) => {
+  const { rows } = await db.query(
+    'SELECT COUNT(*) as total, SUM(CASE WHEN completed = true THEN 1 ELSE 0 END) as completed, SUM(CASE WHEN completed = false THEN 1 ELSE 0 END) as pending FROM tasks'
+  );
+  const stats = rows[0];
+  res.json({
+    total: parseInt(stats.total, 10),
+    completed: parseInt(stats.completed || 0, 10),
+    pending: parseInt(stats.pending || 0, 10)
+  });
+});
+
+// GET /tasks/search — search tasks by title or description
+app.get('/tasks/search', async (req, res) => {
+  const { q } = req.query;
+  if (!q || typeof q !== 'string' || !q.trim()) {
+    return res.status(400).json({ error: 'q (query) parameter is required' });
+  }
+  const searchTerm = `%${q.trim()}%`;
+  const { rows } = await db.query(
+    'SELECT * FROM tasks WHERE title ILIKE $1 ORDER BY created_at ASC',
+    [searchTerm]
+  );
+  res.json(rows);
 });
 
 app.listen(PORT, () => {

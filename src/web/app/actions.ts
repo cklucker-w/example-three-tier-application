@@ -11,9 +11,21 @@ export type Task = {
   created_at: string;
 };
 
+export type TaskStats = {
+  total: number;
+  completed: number;
+  pending: number;
+};
+
 export async function getTasks(): Promise<Task[]> {
   const res = await fetch(`${API_URL}/tasks`, { cache: 'no-store' });
   if (!res.ok) throw new Error('Failed to fetch tasks');
+  return res.json();
+}
+
+export async function getTaskStats(): Promise<TaskStats> {
+  const res = await fetch(`${API_URL}/tasks/stats`, { cache: 'no-store' });
+  if (!res.ok) throw new Error('Failed to fetch stats');
   return res.json();
 }
 
@@ -32,6 +44,13 @@ export async function toggleTask(id: number, completed: boolean) {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ completed }),
+  });
+  revalidatePath('/');
+}
+
+export async function deleteTask(id: number) {
+  await fetch(`${API_URL}/tasks/${id}`, {
+    method: 'DELETE',
   });
   revalidatePath('/');
 }
