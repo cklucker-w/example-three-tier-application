@@ -10,6 +10,41 @@ app.get('/health', (_req, res) => {
   res.json({ status: 'ok' });
 });
 
+// GET /healthState — detailed health state including database connectivity
+app.get('/healthState', async (_req, res) => {
+  const startTime = Date.now();
+  const healthState = {
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    checks: {
+      database: { status: 'unknown', responseTime: null }
+    }
+  };
+
+  try {
+    // Check database connectivity
+    const dbStartTime = Date.now();
+    await db.query('SELECT 1');
+    const dbResponseTime = Date.now() - dbStartTime;
+    healthState.checks.database = {
+      status: 'healthy',
+      responseTime: dbResponseTime
+    };
+  } catch (error) {
+    healthState.status = 'unhealthy';
+    healthState.checks.database = {
+      status: 'unhealthy',
+      error: error.message
+    };
+  }
+
+  const totalResponseTime = Date.now() - startTime;
+  healthState.responseTime = totalResponseTime;
+
+  const statusCode = healthState.status === 'healthy' ? 200 : 503;
+  res.status(statusCode).json(healthState);
+});
+
 // GET /tasks — list all tasks
 app.get('/tasks', async (_req, res) => {
   const { rows } = await db.query('SELECT * FROM tasks ORDER BY created_at ASC');
