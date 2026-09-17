@@ -92,6 +92,20 @@ app.get('/tasks/stats', async (_req, res) => {
   });
 });
 
+// GET /tasks/search — search tasks by title or description
+app.get('/tasks/search', async (req, res) => {
+  const { q } = req.query;
+  if (!q || typeof q !== 'string' || !q.trim()) {
+    return res.status(400).json({ error: 'q (query) parameter is required' });
+  }
+  const searchTerm = `%${q.trim()}%`;
+  const { rows } = await db.query(
+    'SELECT * FROM tasks WHERE title ILIKE $1 ORDER BY created_at ASC',
+    [searchTerm]
+  );
+  res.json(rows);
+});
+
 app.listen(PORT, () => {
   console.log(`API listening on port ${PORT}`);
 });
