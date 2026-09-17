@@ -2,6 +2,17 @@
 
 A reference implementation of a three-tier web application: a Next.js frontend, an Express REST API, and a PostgreSQL database. It runs locally with Docker Compose and deploys to Google Cloud Platform (Cloud Run + Cloud SQL) via Terraform.
 
+## Quick Summary
+
+This is a **task manager (to-do list)** that demonstrates how a modern three-tier web application works:
+
+- **Frontend** (Next.js 16 + React 19 + Tailwind CSS) — runs on port 3000, provides the user interface
+- **API** (Express 5 + Node.js 22) — runs on port 3001, handles business logic and data operations
+- **Database** (PostgreSQL 17) — stores all application data
+- **Infrastructure** (Terraform) — provisions GCP resources for production deployment
+
+The application showcases best practices for local development with Docker Compose and cloud deployment with Infrastructure as Code.
+
 ## Architecture
 
 ```
@@ -15,8 +26,6 @@ Browser → Web (Next.js :3000) → API (Express :3001) → PostgreSQL
 | Database | PostgreSQL 17 | managed by Docker / Cloud SQL |
 | Migrations | node-pg-migrate | `src/db/` |
 | Infrastructure | Terraform (GCP) | `src/infrastructure/` |
-
-The app is a simple task manager (to-do list) that demonstrates how the three tiers communicate.
 
 ## Running locally with Docker Compose
 
@@ -130,5 +139,11 @@ DATABASE_URL=postgres://app:app@localhost:5432/app npx node-pg-migrate down
 ```
 
 When running via Docker Compose the `migrate` service handles this automatically on startup.
+
+## Working with AI Agents
+
+For guidance on using AI tools like Claude Code with this repository, see [agents.md](agents.md).
+
+---
 
 don't forget to be awesome!
