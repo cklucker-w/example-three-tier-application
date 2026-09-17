@@ -6,8 +6,26 @@ const PORT = process.env.PORT || 3001;
 
 app.use(express.json());
 
-app.get('/health', (_req, res) => {
-  res.json({ status: 'ok' });
+// GET /health — health check with database connectivity
+app.get('/health', async (_req, res) => {
+  try {
+    // Test database connectivity
+    await db.query('SELECT 1');
+    res.json({
+      status: 'ok',
+      timestamp: new Date().toISOString(),
+      database: 'connected',
+      uptime: process.uptime(),
+    });
+  } catch (error) {
+    res.status(503).json({
+      status: 'degraded',
+      timestamp: new Date().toISOString(),
+      database: 'disconnected',
+      error: error.message,
+      uptime: process.uptime(),
+    });
+  }
 });
 
 // GET /tasks — list all tasks
