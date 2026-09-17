@@ -79,6 +79,19 @@ app.get('/tasks/pending', async (_req, res) => {
   res.json(rows);
 });
 
+// GET /tasks/stats — get task statistics
+app.get('/tasks/stats', async (_req, res) => {
+  const { rows } = await db.query(
+    'SELECT COUNT(*) as total, SUM(CASE WHEN completed = true THEN 1 ELSE 0 END) as completed, SUM(CASE WHEN completed = false THEN 1 ELSE 0 END) as pending FROM tasks'
+  );
+  const stats = rows[0];
+  res.json({
+    total: parseInt(stats.total, 10),
+    completed: parseInt(stats.completed || 0, 10),
+    pending: parseInt(stats.pending || 0, 10)
+  });
+});
+
 app.listen(PORT, () => {
   console.log(`API listening on port ${PORT}`);
 });
