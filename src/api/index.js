@@ -73,6 +73,12 @@ app.get('/tasks/completed', async (_req, res) => {
   res.json(rows);
 });
 
+// GET /tasks/pending — list all pending (incomplete) tasks
+app.get('/tasks/pending', async (_req, res) => {
+  const { rows } = await db.query('SELECT * FROM tasks WHERE completed = false ORDER BY created_at ASC');
+  res.json(rows);
+});
+
 app.listen(PORT, () => {
   console.log(`API listening on port ${PORT}`);
 });
