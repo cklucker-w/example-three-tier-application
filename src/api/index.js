@@ -27,7 +27,7 @@ app.get('/tasks/:id', async (req, res) => {
 // POST /tasks — create a task
 app.post('/tasks', async (req, res) => {
   const { title } = req.body;
-  if (!title || typeof title !== 'string' || !title.trim()) {
+  if (!title || typeof title!== 'string' ||!title.trim()) {
     return res.status(400).json({ error: 'title is required' });
   }
   const { rows } = await db.query(
@@ -46,8 +46,8 @@ app.patch('/tasks/:id', async (req, res) => {
   if (rows.length === 0) return res.status(404).json({ error: 'Not found' });
 
   const current = rows[0];
-  const newCompleted = completed !== undefined ? Boolean(completed) : current.completed;
-  const newTitle = title !== undefined ? title.trim() : current.title;
+  const newCompleted = completed!== undefined? Boolean(completed) : current.completed;
+  const newTitle = title!== undefined? title.trim() : current.title;
 
   const { rows: updated } = await db.query(
     'UPDATE tasks SET completed = $1, title = $2 WHERE id = $3 RETURNING *',
@@ -65,6 +65,12 @@ app.delete('/tasks/:id', async (req, res) => {
 
   await db.query('DELETE FROM tasks WHERE id = $1', [id]);
   res.status(204).send();
+});
+
+// GET /tasks/completed — list all completed tasks
+app.get('/tasks/completed', async (_req, res) => {
+  const { rows } = await db.query('SELECT * FROM tasks WHERE completed = true ORDER BY created_at ASC');
+  res.json(rows);
 });
 
 app.listen(PORT, () => {
