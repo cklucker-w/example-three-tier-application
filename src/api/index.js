@@ -8,6 +8,13 @@ const PORT = process.env.PORT || 3001;
 // Track application start time for uptime calculation
 const appStartTime = Date.now();
 
+// Heartbeat types enum
+const HEARTBEAT_TYPES = {
+  PERIODIC: 'PERIODIC',
+  ON_DEMAND: 'ON_DEMAND',
+  STARTUP: 'STARTUP'
+};
+
 app.use(express.json());
 
 app.get('/health', (_req, res) => {
@@ -24,6 +31,7 @@ app.get('/healthState', async (_req, res) => {
     uptime: Math.floor((Date.now() - appStartTime) / 1000),
     environment: process.env.NODE_ENV || 'development',
     nodeVersion: process.version,
+    heartbeatType: HEARTBEAT_TYPES.ON_DEMAND,
     checks: {
       database: { status: 'unknown', responseTime: null },
       memory: getMemoryUsage(),
