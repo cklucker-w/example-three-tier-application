@@ -4,20 +4,28 @@ const db = require('./db');
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// Track application start time for uptime calculation
+const appStartTime = Date.now();
+
 app.use(express.json());
 
 app.get('/health', (_req, res) => {
   res.json({ status: 'ok' });
 });
 
-// GET /healthState — detailed health state including database connectivity
+// GET /healthState — detailed health state including database connectivity and system info
 app.get('/healthState', async (_req, res) => {
   const startTime = Date.now();
   const healthState = {
     status: 'healthy',
     timestamp: new Date().toISOString(),
+    version: '1.0.0',
+    uptime: Math.floor((Date.now() - appStartTime) / 1000),
+    environment: process.env.NODE_ENV || 'development',
+    nodeVersion: process.version,
     checks: {
-      database: { status: 'unknown', responseTime: null }
+      database: { status: 'unknown', responseTime: null },
+      memory: getMemoryUsage()
     }
   };
 
@@ -28,13 +36,17 @@ app.get('/healthState', async (_req, res) => {
     const dbResponseTime = Date.now() - dbStartTime;
     healthState.checks.database = {
       status: 'healthy',
-      responseTime: dbResponseTime
+      responseTime: dbResponseTime,
+      poolSize: db.totalCount,
+      idleCount: db.idleCount
     };
   } catch (error) {
     healthState.status = 'unhealthy';
     healthState.checks.database = {
       status: 'unhealthy',
-      error: error.message
+      error: error.message,
+      poolSize: db.totalCount,
+      idleCount: db.idleCount
     };
   }
 
@@ -44,6 +56,19 @@ app.get('/healthState', async (_req, res) => {
   const statusCode = healthState.status === 'healthy' ? 200 : 503;
   res.status(statusCode).json(healthState);
 });
+
+/**
+ * Helper function to get memory usage statistics
+ */
+function getMemoryUsage() {
+  const memUsage = process.memoryUsage();
+  return {
+    heapUsed: Math.round(memUsage.heapUsed / 1024 / 1024 * 100) / 100, // MB
+    heapTotal: Math.round(memUsage.heapTotal / 1024 / 1024 * 100) / 100, // MB
+    external: Math.round(memUsage.external / 1024 / 1024 * 100) / 100, // MB
+    rss: Math.round(memUsage.rss / 1024 / 1024 * 100) / 100 // MB
+  };
+}
 
 // GET /tasks — list all tasks
 app.get('/tasks', async (_req, res) => {
