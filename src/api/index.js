@@ -1,5 +1,6 @@
 const express = require('express');
 const db = require('./db');
+const os = require('os');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -25,7 +26,8 @@ app.get('/healthState', async (_req, res) => {
     nodeVersion: process.version,
     checks: {
       database: { status: 'unknown', responseTime: null },
-      memory: getMemoryUsage()
+      memory: getMemoryUsage(),
+      cpu: getCpuUsage()
     }
   };
 
@@ -67,6 +69,23 @@ function getMemoryUsage() {
     heapTotal: Math.round(memUsage.heapTotal / 1024 / 1024 * 100) / 100, // MB
     external: Math.round(memUsage.external / 1024 / 1024 * 100) / 100, // MB
     rss: Math.round(memUsage.rss / 1024 / 1024 * 100) / 100 // MB
+  };
+}
+
+/**
+ * Helper function to get CPU usage statistics
+ */
+function getCpuUsage() {
+  const cpus = os.cpus();
+  const avgLoad = os.loadavg();
+  return {
+    cores: cpus.length,
+    model: cpus[0]?.model || 'unknown',
+    loadAverage: {
+      oneMinute: Math.round(avgLoad[0] * 100) / 100,
+      fiveMinutes: Math.round(avgLoad[1] * 100) / 100,
+      fifteenMinutes: Math.round(avgLoad[2] * 100) / 100
+    }
   };
 }
 
