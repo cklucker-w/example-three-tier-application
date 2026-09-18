@@ -12,7 +12,7 @@ Browser → Web (Next.js :3000) → API (Express :3001) → PostgreSQL
 |-------|-----------|----------|
 | Frontend | Next.js 16, React 19, Tailwind CSS | `src/web/` |
 | API | Express 5, Node.js 22 | `src/api/` |
-| Database | PostgreSQL 18 | managed by Docker / Cloud SQL |
+| Database | PostgreSQL 18.1 | managed by Docker / Cloud SQL |
 | Migrations | node-pg-migrate | `src/db/` |
 | Infrastructure | Terraform (GCP) | `src/infrastructure/` |
 
@@ -32,7 +32,7 @@ docker compose up --build
 
 This starts four services in order:
 
-1. **postgres** — PostgreSQL 18 database, waits until healthy
+1. **postgres** — PostgreSQL 18.1 database, waits until healthy
 2. **migrate** — runs `node-pg-migrate up` to apply schema migrations, then exits
 3. **api** — Express API on port 3001 (internal only)
 4. **web** — Next.js frontend on port 3000 (exposed to host)
@@ -91,7 +91,7 @@ src/
 The `src/infrastructure/` directory contains Terraform that provisions:
 
 - VPC network and subnet
-- Cloud SQL PostgreSQL 18 instance (private IP)
+- Cloud SQL PostgreSQL 18.1 instance (private IP)
 - Cloud Run services for the API and web frontend
 - Secret Manager secret for the database URL
 - Service accounts and IAM bindings
