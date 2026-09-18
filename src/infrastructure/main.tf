@@ -78,7 +78,7 @@ resource "random_password" "db" {
 
 resource "google_sql_database_instance" "main" {
   name             = "${local.name_prefix}-postgres"
-  database_version = "POSTGRES_18_4"
+  database_version = "POSTGRES_18_5"
   region           = var.region
 
   depends_on = [google_service_networking_connection.private_services]
