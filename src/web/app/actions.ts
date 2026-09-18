@@ -20,6 +20,8 @@ export type TaskStats = {
 // Health check types
 export type HealthCheckStatus = 'healthy' | 'unhealthy' | 'unknown';
 
+export type HeartbeatType = 'PERIODIC' | 'ON_DEMAND' | 'STARTUP';
+
 export type DatabaseCheck = {
   status: HealthCheckStatus;
   responseTime: number | null;
@@ -58,6 +60,7 @@ export type ApiState = {
   uptime: number;
   environment: string;
   nodeVersion: string;
+  heartbeatType: HeartbeatType;
   responseTime: number;
   checks: HealthChecks;
 };
