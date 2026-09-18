@@ -17,6 +17,51 @@ export type TaskStats = {
   pending: number;
 };
 
+// Health check types
+export type HealthCheckStatus = 'healthy' | 'unhealthy' | 'unknown';
+
+export type DatabaseCheck = {
+  status: HealthCheckStatus;
+  responseTime: number | null;
+  poolSize?: number;
+  idleCount?: number;
+  error?: string;
+};
+
+export type MemoryCheck = {
+  heapUsed: number;
+  heapTotal: number;
+  external: number;
+  rss: number;
+};
+
+export type CpuCheck = {
+  cores: number;
+  model: string;
+  loadAverage: {
+    oneMinute: number;
+    fiveMinutes: number;
+    fifteenMinutes: number;
+  };
+};
+
+export type HealthChecks = {
+  database: DatabaseCheck;
+  memory: MemoryCheck;
+  cpu: CpuCheck;
+};
+
+export type ApiState = {
+  status: HealthCheckStatus;
+  timestamp: string;
+  version: string;
+  uptime: number;
+  environment: string;
+  nodeVersion: string;
+  responseTime: number;
+  checks: HealthChecks;
+};
+
 export async function getTasks(): Promise<Task[]> {
   const res = await fetch(`${API_URL}/tasks`, { cache: 'no-store' });
   if (!res.ok) throw new Error('Failed to fetch tasks');
@@ -26,6 +71,12 @@ export async function getTasks(): Promise<Task[]> {
 export async function getTaskStats(): Promise<TaskStats> {
   const res = await fetch(`${API_URL}/tasks/stats`, { cache: 'no-store' });
   if (!res.ok) throw new Error('Failed to fetch stats');
+  return res.json();
+}
+
+export async function getApiState(): Promise<ApiState> {
+  const res = await fetch(`${API_URL}/healthState`, { cache: 'no-store' });
+  if (!res.ok) throw new Error('Failed to fetch API state');
   return res.json();
 }
 
