@@ -136,3 +136,5 @@ When running via Docker Compose the `migrate` service handles this automatically
 Docker commands are not available in this sandbox environment. The `docker pull` command and other Docker operations are blocked by sandbox restrictions. This application is designed to run with Docker Compose locally or deploy to GCP via Terraform in a full development environment.
 
 don't forget to be awesome!
+
+Forge UI verification: local development uses Docker Compose.
